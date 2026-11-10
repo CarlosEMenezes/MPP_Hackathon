@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ScreenScout · Movie data agents pay for</title>
+<meta name="description" content="Pay-per-request movie & TV data for AI agents over the Machine Payments Protocol. No API key: HTTP 402, pay, get the result and a receipt." />
+<link rel="service-desc" type="application/json" href="/openapi.json" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23f5c84c'/><path d='M9 11h14v10H9z' fill='%2311100e'/><circle cx='16' cy='16' r='3' fill='%23f5c84c'/></svg>" />
+<style>
+:root{
+  --bg:#0c0b0a; --bg2:#13120f; --panel:#181613; --panel2:#1f1c18; --line:#2c2823; --line2:#3a352e;
+  --text:#f3efe8; --muted:#a49c90; --dim:#6f685e;
+  --gold:#f5c84c; --gold2:#ffdf85; --goldink:#1a1404;
+  --ok:#5fd39a; --warn:#f0a35e; --err:#ff7a6b; --blue:#8fb8ff;
+  --r:14px; --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; --serif:'Instrument Serif',Georgia,serif;
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit} img{display:block;max-width:100%}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.mono{font-family:var(--mono)}
+.muted{color:var(--muted)} .dim{color:var(--dim)}
+
+/* nav */
+nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:22px;height:62px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em;text-decoration:none;font-size:17px}
+.logo{width:28px;height:28px;border-radius:8px;background:var(--gold);display:grid;place-items:center}
+.logo i{width:16px;height:11px;background:#11100e;border-radius:2px;position:relative}
+.logo i:after{content:"";position:absolute;inset:3px 5px;border-radius:50%;background:var(--gold)}
+nav .links{display:flex;gap:18px;margin-left:auto;font-size:14px}
+nav .links a{color:var(--muted);text-decoration:none} nav .links a:hover{color:var(--text)}
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;padding:5px 11px;border-radius:999px;border:1px solid var(--line2);background:var(--panel);color:var(--muted);white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 22%,transparent)}
+.dot.test{background:var(--warn);box-shadow:0 0 0 3px color-mix(in srgb,var(--warn) 22%,transparent)}
+
+/* hero */
+.hero{position:relative;padding:84px 0 56px;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:-40% -10% auto;height:620px;background:radial-gradient(closest-side,color-mix(in srgb,var(--gold) 16%,transparent),transparent 70%);pointer-events:none}
+.strip{position:absolute;right:-60px;top:40px;display:flex;gap:10px;transform:rotate(-8deg);opacity:.5;pointer-events:none}
+.strip span{width:92px;height:136px;border-radius:10px;background:var(--panel2) center/cover;border:1px solid var(--line)}
+.eyebrow{font:500 12.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+h1{font:400 clamp(44px,7vw,84px)/.98 var(--serif);letter-spacing:-.02em;margin:18px 0 20px;max-width:13ch}
+h1 em{color:var(--gold);font-style:italic}
+.lede{font-size:18px;color:var(--muted);max-width:56ch;margin:0 0 30px}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.btn{appearance:none;border:1px solid var(--line2);background:var(--panel);color:var(--text);font:600 14.5px var(--sans);padding:12px 18px;border-radius:11px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:9px;transition:.15s}
+.btn:hover{border-color:var(--dim);background:var(--panel2)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:var(--goldink)}
+.btn.gold:hover{background:var(--gold2)}
+.btn:disabled{opacity:.55;cursor:progress}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-top:56px}
+.stats div{background:var(--bg2);padding:18px 20px}
+.stats b{display:block;font:400 34px/1 var(--serif);margin-bottom:6px}
+.stats span{font-size:13px;color:var(--muted)}
+
+section{padding:64px 0;border-top:1px solid var(--line)}
+h2{font:400 clamp(32px,4.4vw,48px)/1.05 var(--serif);letter-spacing:-.015em;margin:10px 0 12px}
+.sub{color:var(--muted);max-width:64ch;margin:0 0 30px}
+
+/* demo */
+.demo{display:grid;grid-template-columns:330px 1fr;gap:18px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.controls{padding:18px;position:sticky;top:80px}
+.label{font:500 11.5px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin:0 0 9px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:18px}
+.seg button{appearance:none;text-align:left;border:1px solid var(--line);background:var(--bg2);color:var(--text);border-radius:10px;padding:10px 11px;cursor:pointer;font:600 13.5px var(--sans)}
+.seg button small{display:block;font:500 11.5px var(--mono);color:var(--muted);margin-top:2px}
+.seg button[aria-pressed=true]{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 10%,var(--bg2))}
+.seg button[aria-pressed=true] small{color:var(--gold)}
+input[type=text]{width:100%;background:var(--bg2);border:1px solid var(--line2);color:var(--text);border-radius:10px;padding:12px 13px;font:15px var(--sans);outline:none}
+input[type=text]:focus{border-color:var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 18px}
+.chips button{appearance:none;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:4px 10px;font:12.5px var(--sans);cursor:pointer}
+.chips button:hover{color:var(--text);border-color:var(--dim)}
+.run{width:100%;justify-content:center;padding:14px}
+.fine{font-size:12.5px;color:var(--dim);margin:12px 0 0}
+
+.flow{padding:6px 0}
+.lanes{display:grid;grid-template-columns:1fr 1fr;padding:14px 20px 10px;border-bottom:1px solid var(--line);font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.lanes span:last-child{text-align:right}
+.step{display:grid;grid-template-columns:38px 1fr auto;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line);opacity:.38;transition:opacity .3s}
+.step:last-child{border-bottom:0}
+.step.on{opacity:1}
+.num{width:30px;height:30px;border-radius:50%;border:1px solid var(--line2);display:grid;place-items:center;font:600 13px var(--mono);color:var(--muted)}
+.step.on .num{border-color:var(--gold);color:var(--gold)}
+.step.ok .num{background:var(--gold);color:var(--goldink);border-color:var(--gold)}
+.step.busy .num{animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--gold) 20%,transparent)}}
+.step h3{margin:3px 0 4px;font-size:15.5px;font-weight:600}
+.step .who{font:500 11.5px var(--mono);color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.step .t{font:500 12px var(--mono);color:var(--dim);padding-top:5px}
+.detail{margin-top:10px;display:none}
+.step.on .detail{display:block}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13px;margin:0}
+.kv dt{color:var(--dim);font:500 12px var(--mono);padding-top:1px}
+.kv dd{margin:0;overflow-wrap:anywhere}
+pre.http{margin:8px 0 0;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:12px/1.55 var(--mono);color:var(--muted);white-space:pre-wrap;word-break:break-all;max-height:140px;overflow:auto}
+pre.http b{color:var(--text);font-weight:500}
+.tag{display:inline-block;font:600 11.5px var(--mono);padding:2px 7px;border-radius:6px;background:var(--panel2);border:1px solid var(--line2)}
+.tag.s402{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.tag.s200{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
+.link{color:var(--gold);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--gold) 35%,transparent)}
+.link:hover{border-color:var(--gold)}
+
+/* result */
+#result{margin-top:18px;overflow:hidden}
+.rhead{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}
+.rhead .btn{padding:6px 10px;font-size:12.5px;margin-left:auto}
+.empty{padding:46px 20px;text-align:center;color:var(--dim)}
+.banner{position:relative;min-height:230px;background:var(--panel2) center/cover;display:flex;align-items:flex-end}
+.banner:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,color-mix(in srgb,var(--panel) 70%,transparent) 55%,var(--panel) 100%)}
+.banner .in{position:relative;z-index:1;display:flex;gap:20px;align-items:flex-end;padding:20px}
+.poster{width:120px;flex:none;aspect-ratio:2/3;border-radius:10px;object-fit:cover;background:var(--panel2);border:1px solid var(--line2);box-shadow:0 18px 40px #0008}
+.ttl{font:400 38px/1 var(--serif);margin:0 0 6px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13.5px;color:var(--muted)}
+.score{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--gold)}
+.body{padding:4px 20px 22px}
+.tagline{font:italic 400 20px var(--serif);color:var(--muted);margin:10px 0}
+.genres{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.genres span{font-size:12.5px;padding:3px 10px;border-radius:999px;background:var(--panel2);border:1px solid var(--line2)}
+.cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px;margin-top:12px}
+.cast div{font-size:12.5px}
+.cast img,.cast .ph{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:9px;background:var(--panel2);margin-bottom:7px}
+.cast b{display:block;font-weight:600;font-size:13px}
+.cast span{color:var(--muted)}
+h4{font:500 11.5px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin:22px 0 4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;padding:18px}
+.grid .p{aspect-ratio:2/3;border-radius:10px;background:var(--panel2) center/cover;border:1px solid var(--line);margin-bottom:8px;display:grid;place-items:center;color:var(--dim);font-size:12px}
+.grid b{font-size:13.5px;display:block}
+.grid small{color:var(--muted)}
+.reviews{display:grid;gap:12px;padding:18px}
+.rev{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.rev header{display:flex;gap:10px;align-items:center;font-size:13px;margin-bottom:6px}
+.rev header b{font-weight:600}
+.rev p{margin:0;color:var(--muted);font-size:14px;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.big{font:400 64px/1 var(--serif);color:var(--gold)}
+.credits{display:grid;gap:0;margin-top:8px}
+.credits div{display:grid;grid-template-columns:52px 1fr auto;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.credits span{color:var(--muted)}
+.bio{color:var(--muted);white-space:pre-line;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}
+pre.json{margin:0;padding:16px;max-height:520px;overflow:auto;font:12.5px/1.6 var(--mono);color:var(--muted);background:var(--bg)}
+
+/* prod */
+.prod{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.prod .card{padding:20px}
+.offers{display:grid;gap:10px;margin-top:14px}
+.offer{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border:1px solid var(--line2);border-radius:11px;background:var(--bg2)}
+.coin{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--mono);color:#111}
+.offer b{display:block;font-size:14.5px}
+.offer small{color:var(--muted);font:12px var(--mono)}
+.price{font:400 28px var(--serif)}
+.code{position:relative;background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:12px 14px;font:12.5px/1.6 var(--mono);color:var(--text);margin-top:10px;overflow-x:auto;white-space:pre}
+.code .c{color:var(--dim)}
+.copy{position:absolute;top:8px;right:8px;padding:4px 9px;font-size:11.5px}
+
+/* endpoints */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 11.5px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--dim)}
+td code{font:13px var(--mono);color:var(--gold)}
+td.p{font:400 24px var(--serif);white-space:nowrap}
+.tablewrap{overflow-x:auto}
+
+footer{border-top:1px solid var(--line);padding:34px 0 50px;color:var(--dim);font-size:13px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 26px;align-items:center}
+footer a{color:var(--muted)}
+
+.demo>*,.prod>*{min-width:0}
+@media (max-width: 920px){
+  .demo,.prod{grid-template-columns:1fr}
+  .controls{position:static}
+  .strip{display:none}
+  nav .links a.hide-sm{display:none}
+}
+@media (max-width: 600px){
+  .wrap{padding:0 16px}
+  .stats{grid-template-columns:1fr 1fr}
+  nav .links{gap:12px}
+  nav .wrap{gap:12px}
+  nav .links a.hide-xs{display:none}
+  #netpill span:last-child{display:none}
+  #netpill{padding:7px}
+  .banner .in{flex-direction:column;align-items:flex-start}
+  .poster{width:96px}
+  .ttl{font-size:30px}
+  .step{grid-template-columns:32px 1fr;gap:10px;padding:14px}
+  .step .t{display:none}
+  .hero{padding-top:56px}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="logo"><i></i></span>ScreenScout</a>
+    <span class="pill" id="netpill"><span class="dot"></span><span>Live on Tempo</span></span>
+    <div class="links">
+      <a href="#demo">Live demo</a>
+      <a href="#prod" class="hide-sm">For agents</a>
+      <a href="#endpoints" class="hide-sm">Pricing</a>
+      <a href="/openapi.json" class="hide-xs">openapi.json</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="strip" id="strip" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+  <div class="wrap">
+    <div class="eyebrow">Machine Payments Protocol · HTTP 402</div>
+    <h1>The movie database your <em>agent</em> pays for.</h1>
+    <p class="lede">Titles, cast, actors and reviews for any film or show. An agent asks, gets a price, pays a cent or two in stablecoins, and gets the answer with a receipt. No signup, no API key, no billing account.</p>
+    <div class="cta">
+      <a class="btn gold" href="#demo">▶ Watch an agent pay</a>
+      <a class="btn" href="#prod">Call the production API</a>
+    </div>
+    <div class="stats">
+      <div><b>4</b><span>paid endpoints</span></div>
+      <div><b>$0.01</b><span>cheapest call</span></div>
+      <div><b>2</b><span>stablecoins accepted</span></div>
+      <div><b>0</b><span>API keys to manage</span></div>
+    </div>
+  </div>
+</header>
+
+<section id="demo">
+  <div class="wrap">
+    <div class="eyebrow">Live demo</div>
+    <h2>One request, one payment, one receipt.</h2>
+    <p class="sub">Pick what to buy and press run. A real agent on our server calls the API, gets <span class="mono">402 Payment Required</span>, pays on the Tempo blockchain, then retries with proof of payment. Every step below is the actual traffic, as it happens. The demo uses Tempo testnet play money, so nothing real is charged.</p>
+
+    <div class="demo">
+      <div class="card controls">
+        <p class="label">1 · What the agent buys</p>
+        <div class="seg" id="seg">
+          <button data-ep="title" aria-pressed="true">Title<small>$0.02</small></button>
+          <button data-ep="person" aria-pressed="false">Actor<small>$0.01</small></button>
+          <button data-ep="reviews" aria-pressed="false">Reviews<small>$0.02</small></button>
+          <button data-ep="search" aria-pressed="false">Search<small>$0.01</small></button>
+        </div>
+        <p class="label">2 · Query</p>
+        <input type="text" id="q" value="Dune: Part Two" maxlength="80" autocomplete="off" aria-label="Query" />
+        <div class="chips" id="chips"></div>
+        <button class="btn gold run" id="run">▶ Run paid request</button>
+        <p class="fine" id="fine">Paid in pathUSD on Tempo testnet (Moderato). The production API bills real pathUSD or USDC.e on Tempo mainnet.</p>
+      </div>
+
+      <div>
+        <div class="card flow" id="flow">
+          <div class="lanes"><span>Agent</span><span>ScreenScout API</span></div>
+          <div class="step" id="s1"><div class="num">1</div><div><div class="who">Agent → API</div><h3>Asks for the result</h3><div class="detail" id="d1"></div></div><div class="t" id="t1"></div></div>
+          <div class="step" id="s2"><div class="num">2</div><div><div class="who">API → Agent</div><h3>Answers 402 and names the price</h3><div class="detail" id="d2"></div></div><div class="t" id="t2"></div></div>
+          <div class="step" id="s3"><div class="num">3</div><div><div class="who">Agent → Tempo → API</div><h3>Pays, then asks again with proof</h3><div class="detail" id="d3"></div></div><div class="t" id="t3"></div></div>
+          <div class="step" id="s4"><div class="num">4</div><div><div class="who">API → Agent</div><h3>Sends the result plus a receipt</h3><div class="detail" id="d4"></div></div><div class="t" id="t4"></div></div>
+        </div>
+
+        <div class="card" id="result">
+          <div class="rhead"><span id="rlabel">Result</span><button class="btn" id="toggle" hidden>View JSON</button></div>
+          <div id="rbody"><div class="empty">Run a request to see what the agent bought.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="prod">
+  <div class="wrap">
+    <div class="eyebrow">For agents</div>
+    <h2>The production API takes real money.</h2>
+    <p class="sub">This is the same endpoint agents call in production. Fetch it from your browser without paying and you get the real challenge: both accepted stablecoins, the price, and the wallet that gets paid.</p>
+    <div class="prod">
+      <div class="card">
+        <p class="label">Live mainnet challenge</p>
+        <div class="mono" style="font-size:13px"><span class="tag">GET</span> <span id="prodUrl">/api/title?q=dune</span></div>
+        <div style="margin-top:14px"><button class="btn gold" id="peek">Fetch without paying</button></div>
+        <div id="peekOut"></div>
+      </div>
+      <div class="card">
+        <p class="label">Pay from a terminal</p>
+        <div class="muted" style="font-size:14px">With the <a class="link" href="https://tempo.xyz" target="_blank" rel="noopener">Tempo CLI</a> logged in to a funded wallet:</div>
+        <div class="code" id="c1"><button class="btn copy" data-copy="c1">Copy</button><span class="c"># preview the price, then pay</span>
+tempo request --dry-run <span class="o"></span>/api/person?q=zendaya
+tempo request --max-spend 0.05 <span class="o"></span>/api/person?q=zendaya</div>
+        <div class="muted" style="font-size:14px;margin-top:16px">Or check the whole integration:</div>
+        <div class="code" id="c2"><button class="btn copy" data-copy="c2">Copy</button>npx mppx validate <span class="o"></span></div>
+        <div class="muted" style="font-size:14px;margin-top:16px">Discovery for agents: <a class="link" href="/openapi.json">/openapi.json</a> · <a class="link" href="/llms.txt">/llms.txt</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="endpoints">
+  <div class="wrap">
+    <div class="eyebrow">Pricing</div>
+    <h2>Pay per call. Nothing else.</h2>
+    <p class="sub">Every parameter is optional, so a bare call still returns something useful. Prices are in US-dollar stablecoins: pathUSD or USDC.e.</p>
+    <div class="card tablewrap">
+      <table>
+        <thead><tr><th>Endpoint</th><th>Price</th><th>Parameters</th><th>Returns</th></tr></thead>
+        <tbody>
+          <tr><td><code>GET /api/search</code></td><td class="p">$0.01</td><td class="muted"><code>q</code></td><td>Movies, shows and people matching the query. Trending today if empty.</td></tr>
+          <tr><td><code>GET /api/title</code></td><td class="p">$0.02</td><td class="muted"><code>q</code> or <code>type</code>+<code>id</code></td><td>Details, genres, runtime, rating, top 10 cast, directors or creators, US streaming / rent / buy.</td></tr>
+          <tr><td><code>GET /api/reviews</code></td><td class="p">$0.02</td><td class="muted"><code>q</code> or <code>type</code>+<code>id</code>, <code>limit</code></td><td>Audience score, reviewer average and review excerpts.</td></tr>
+          <tr><td><code>GET /api/person</code></td><td class="p">$0.01</td><td class="muted"><code>q</code> or <code>id</code></td><td>Biography, birthday, birthplace and top filmography.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span><b style="color:var(--text)">ScreenScout</b> · built for the Stripe × Tempo MPP hackathon</span>
+    <a href="/openapi.json">OpenAPI</a><a href="/llms.txt">llms.txt</a>
+    <a href="https://github.com/CarlosEMenezes/MPP_Hackathon" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://mpp.dev" target="_blank" rel="noopener">mpp.dev</a>
+    <span style="flex-basis:100%">Data from TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+  </div>
+</footer>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s)
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
+const short = (a) => (a ? a.slice(0, 6) + '…' + a.slice(-4) : '')
+const TOKENS = {
+  '0x20c0000000000000000000000000000000000000': { sym: 'pathUSD', bg: '#f5c84c' },
+  '0x20c000000000000000000000b9537d11c60e8b50': { sym: 'USDC.e', bg: '#8fb8ff' },
+}
+const tok = (a) => TOKENS[String(a).toLowerCase()] ?? { sym: short(a), bg: '#aaa' }
+const usd = (raw, d = 6) => '$' + (Number(raw) / 10 ** d).toFixed(2)
+const CHAINS = { 4217: 'Tempo mainnet', 42431: 'Tempo testnet (Moderato)' }
+const EXPL = { 4217: 'https://explore.tempo.xyz', 42431: 'https://explore.testnet.tempo.xyz' }
+const origin = location.origin
+
+document.querySelectorAll('.o').forEach((el) => (el.textContent = origin))
+
+// network pill
+fetch('/config.json').then((r) => r.json()).then((cfg) => {
+  const main = cfg.network === 'mainnet'
+  $('#netpill').innerHTML = `<span class="dot ${main ? '' : 'test'}"></span><span>${main ? 'Live on Tempo mainnet' : 'Running on Tempo testnet'}</span>`
+}).catch(() => {})
+
+// ---- controls ----
+const SUGGEST = {
+  title: ['Dune: Part Two', 'The Bear', 'Oppenheimer', 'Severance', 'Spirited Away'],
+  person: ['Zendaya', 'Cillian Murphy', 'Pedro Pascal', 'Greta Gerwig', 'Denzel Washington'],
+  reviews: ['Barbie', 'Dune', 'Everything Everywhere All at Once', 'The Last of Us'],
+  search: ['', 'christopher nolan', 'heist', 'studio ghibli', 'star wars'],
+}
+let ep = 'title'
+function renderChips() {
+  $('#chips').innerHTML = SUGGEST[ep].map((s) => `<button type="button" data-q="${esc(s)}">${s ? esc(s) : 'trending today'}</button>`).join('')
+}
+$('#seg').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return
+  ep = b.dataset.ep
+  document.querySelectorAll('#seg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)))
+  $('#q').value = SUGGEST[ep][0]
+  renderChips()
+})
+$('#chips').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return
+  $('#q').value = b.dataset.q
+  run()
+})
+$('#q').addEventListener('keydown', (e) => e.key === 'Enter' && run())
+$('#run').addEventListener('click', run)
+renderChips()
+
+// ---- flow rendering ----
+function setStep(n, state, html, t) {
+  const s = $('#s' + n)
+  s.classList.add('on'); s.classList.toggle('busy', state === 'busy'); s.classList.toggle('ok', state === 'ok')
+  if (html !== undefined) $('#d' + n).innerHTML = html
+  if (t !== undefined) $('#t' + n).textContent = (t / 1000).toFixed(2) + 's'
+}
+function resetFlow() {
+  for (let n = 1; n <= 4; n++) { $('#s' + n).className = 'step'; $('#d' + n).innerHTML = ''; $('#t' + n).textContent = '' }
+}
+
+let lastBody = null, showJson = false
+$('#toggle').addEventListener('click', () => { showJson = !showJson; renderResult() })
+
+async function run() {
+  const btn = $('#run')
+  if (btn.disabled) return
+  btn.disabled = true; btn.textContent = 'Running…'
+  resetFlow(); lastBody = null; showJson = false; $('#toggle').hidden = true
+  $('#rbody').innerHTML = '<div class="empty">The agent is working…</div>'
+  $('#rlabel').textContent = 'Result'
+  let ch = null, wallet = null, reqPath = ''
+  try {
+    const res = await fetch('/demo/run', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ endpoint: ep, q: $('#q').value }) })
+    if (!res.ok) { const j = await res.json().catch(() => ({})); throw new Error(j.error || 'HTTP ' + res.status) }
+    const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = ''
+    for (;;) {
+      const { value, done } = await reader.read(); if (done) break
+      buf += dec.decode(value, { stream: true })
+      let i
+      while ((i = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, i); buf = buf.slice(i + 1)
+        if (!line.trim()) continue
+        const ev = JSON.parse(line)
+        if (ev.step === 'request') {
+          reqPath = decodeURIComponent(ev.url.replace(/^https?:\/\/[^/]+/, '').replace(/\+/g, ' '))
+          setStep(1, 'ok', `<pre class="http"><b>GET</b> ${esc(reqPath)}\nHost: ${esc(location.host)}\n<span class="dim"># no payment, no API key</span></pre>`, ev.at)
+          setStep(2, 'busy')
+        } else if (ev.step === 'challenge') {
+          ch = ev.challenges[0] || {}
+          const rq = ch.request || {}
+          const chain = rq.methodDetails?.chainId
+          setStep(2, 'ok', `<div><span class="tag s402">HTTP ${ev.status} ${esc(ev.statusText)}</span></div>
+            <dl class="kv" style="margin-top:10px">
+              <dt>price</dt><dd><b>${usd(rq.amount)}</b> in ${esc(tok(rq.currency).sym)}</dd>
+              <dt>for</dt><dd>${esc(ch.description)}</dd>
+              <dt>network</dt><dd>${esc(CHAINS[chain] || chain)}</dd>
+              <dt>pay to</dt><dd class="mono">${esc(short(rq.recipient))}</dd>
+              <dt>expires</dt><dd>${esc(new Date(ch.expires).toLocaleTimeString())}</dd>
+            </dl>
+            <pre class="http"><b>WWW-Authenticate:</b> ${esc(ev.header)}</pre>`, ev.at)
+          setStep(3, 'busy', '<div class="muted" style="font-size:13px">Getting a funded wallet…</div>')
+        } else if (ev.step === 'wallet' && ev.address) {
+          wallet = ev
+          setStep(3, 'busy', `<dl class="kv"><dt>wallet</dt><dd class="mono"><a class="link" target="_blank" rel="noopener" href="${EXPL[42431]}/address/${esc(ev.address)}">${esc(short(ev.address))}</a> ${ev.funded ? '<span class="dim">(just funded by the testnet faucet)</span>' : ''}</dd></dl><div class="muted" style="font-size:13px;margin-top:6px">Signing the payment…</div>`)
+        } else if (ev.step === 'credential') {
+          setStep(3, 'busy', `<dl class="kv"><dt>wallet</dt><dd class="mono">${esc(short(wallet?.address))}</dd><dt>paid</dt><dd>${usd(ch?.request?.amount)} ${esc(tok(ch?.request?.currency).sym)}</dd></dl>
+            <pre class="http"><b>GET</b> ${esc(reqPath)} <span class="dim"># same request, retried</span>\n<b>Authorization:</b> ${esc(ev.header)}</pre>`, ev.at)
+        } else if (ev.step === 'receipt') {
+          setStep(3, 'ok')
+          const r = ev.receipt || {}
+          setStep(4, 'ok', `<div><span class="tag s200">HTTP ${ev.status} OK</span> <span class="tag">Payment-Receipt</span></div>
+            <dl class="kv" style="margin-top:10px">
+              <dt>status</dt><dd style="color:var(--ok)">${esc(r.status)}</dd>
+              <dt>method</dt><dd>${esc(r.method)}</dd>
+              <dt>settled</dt><dd>${esc(r.timestamp ? new Date(r.timestamp).toLocaleTimeString() : '')}</dd>
+              <dt>tx</dt><dd class="mono">${ev.explorer ? `<a class="link" target="_blank" rel="noopener" href="${esc(ev.explorer)}">${esc(short(r.reference))} ↗</a>` : esc(r.reference)}</dd>
+            </dl>`, ev.at)
+        } else if (ev.step === 'result') {
+          lastBody = ev.body; renderResult()
+        } else if (ev.step === 'done') {
+          $('#rlabel').innerHTML = `Result · <span class="mono">${(ev.ms / 1000).toFixed(1)}s</span> end to end`
+        } else if (ev.step === 'error') {
+          throw new Error(ev.message)
+        }
+      }
+    }
+  } catch (err) {
+    $('#rbody').innerHTML = `<div class="empty" style="color:var(--err)">${esc(err.message)}</div>`
+  } finally {
+    btn.disabled = false; btn.textContent = '▶ Run paid request'
+  }
+}
+
+// ---- result rendering ----
+function renderResult() {
+  const box = $('#rbody')
+  if (!lastBody) return
+  $('#toggle').hidden = false
+  $('#toggle').textContent = showJson ? 'View card' : 'View JSON'
+  if (showJson || !lastBody.data) { box.innerHTML = `<pre class="json">${esc(JSON.stringify(lastBody, null, 2))}</pre>`; return }
+  const d = lastBody.data
+  if (ep === 'title' || (d.cast && d.genres)) return (box.innerHTML = titleCard(d))
+  if (ep === 'person') return (box.innerHTML = personCard(d))
+  if (ep === 'reviews') return (box.innerHTML = reviewsCard(d))
+  box.innerHTML = searchCard(d)
+}
+const img = (src, cls = '', alt = '') => (src ? `<img class="${cls}" src="${esc(src)}" alt="${esc(alt)}" loading="lazy" />` : `<div class="${cls} ph"></div>`)
+
+function titleCard(d) {
+  const crew = d.directors || d.creators || []
+  const w = d.where_to_watch_us
+  return `<div class="banner" style="background-image:url('${esc(d.backdrop || '')}')"><div class="in">
+      ${img(d.poster, 'poster', d.title)}
+      <div><p class="ttl">${esc(d.title)}</p>
+      <div class="meta"><span>${esc(d.year || '')}</span><span>${d.type === 'tv' ? 'TV series' : 'Film'}</span>
+      ${d.runtime_minutes ? `<span>${d.runtime_minutes} min</span>` : ''}${d.seasons ? `<span>${d.seasons} seasons</span>` : ''}
+      ${d.rating?.tmdb ? `<span class="score">★ ${d.rating.tmdb}<span class="dim" style="font-weight:400">/10 · ${d.rating.votes.toLocaleString()} votes</span></span>` : ''}</div></div>
+    </div></div>
+    <div class="body">
+      ${d.tagline ? `<p class="tagline">“${esc(d.tagline)}”</p>` : ''}
+      <div class="genres">${(d.genres || []).map((g) => `<span>${esc(g)}</span>`).join('')}</div>
+      <p class="muted">${esc(d.overview)}</p>
+      ${crew.length ? `<p style="font-size:14px"><span class="dim">${d.type === 'tv' ? 'Created by' : 'Directed by'}</span> ${esc(crew.join(', '))}</p>` : ''}
+      ${w && (w.stream.length || w.rent.length) ? `<p style="font-size:14px"><span class="dim">Stream in the US on</span> ${esc((w.stream.length ? w.stream : w.rent).slice(0, 4).join(', '))}</p>` : ''}
+      <h4>Top cast</h4>
+      <div class="cast">${(d.cast || []).slice(0, 10).map((c) => `<div>${img(c.profile, '', c.name)}<b>${esc(c.name)}</b><span>${esc(c.character || '')}</span></div>`).join('')}</div>
+    </div>`
+}
+function personCard(d) {
+  return `<div class="body" style="padding-top:20px"><div style="display:flex;gap:20px;flex-wrap:wrap">
+      ${img(d.profile, 'poster', d.name)}
+      <div style="flex:1;min-width:220px"><p class="ttl">${esc(d.name)}</p>
+        <div class="meta"><span>${esc(d.known_for_department || '')}</span>${d.birthday ? `<span>Born ${esc(d.birthday)}</span>` : ''}${d.place_of_birth ? `<span>${esc(d.place_of_birth)}</span>` : ''}<span>${d.credit_count} credits</span></div>
+        <p class="bio">${esc(d.biography || 'No biography on file.')}</p></div></div>
+      <h4>Top credits</h4>
+      <div class="credits">${(d.top_credits || []).slice(0, 10).map((c) => `<div><span class="mono">${esc(c.year || '—')}</span><b style="font-weight:500">${esc(c.title)}${c.character ? ` <span>as ${esc(c.character)}</span>` : ''}</b><span>${c.rating ? '★ ' + c.rating : ''}</span></div>`).join('')}</div>
+    </div>`
+}
+function reviewsCard(d) {
+  return `<div class="body" style="padding-top:20px;display:flex;gap:28px;flex-wrap:wrap;align-items:flex-end">
+      <div><p class="ttl" style="margin:0">${esc(d.title)} <span class="dim" style="font-size:24px">${esc(d.year || '')}</span></p><div class="meta">${d.total_reviews} reviews on file</div></div>
+      <div style="margin-left:auto;text-align:right"><div class="big">${d.audience_score?.tmdb ?? '–'}</div><div class="dim" style="font-size:12.5px">audience score · ${(d.audience_score?.votes || 0).toLocaleString()} votes</div></div>
+      ${d.reviewer_average ? `<div style="text-align:right"><div class="big" style="color:var(--text)">${d.reviewer_average}</div><div class="dim" style="font-size:12.5px">reviewer average</div></div>` : ''}
+    </div>
+    <div class="reviews">${(d.reviews || []).map((r) => `<article class="rev"><header><b>${esc(r.author)}</b>${r.rating != null ? `<span class="score">★ ${r.rating}</span>` : ''}<span class="dim" style="margin-left:auto">${esc(r.date || '')}</span></header><p>${esc(r.excerpt)}</p></article>`).join('') || '<div class="empty">No written reviews yet.</div>'}</div>`
+}
+function searchCard(d) {
+  return `<div class="rhead" style="border:0;padding-bottom:0">${d.mode === 'trending' ? 'Trending today' : 'Results for “' + esc(d.query) + '”'}</div>
+    <div class="grid">${(d.results || []).map((r) => {
+      const pic = r.poster || r.profile
+      return `<div><div class="p" style="${pic ? `background-image:url('${esc(pic)}')` : ''}">${pic ? '' : esc(r.type)}</div><b>${esc(r.title || r.name)}</b><small>${esc([r.type === 'person' ? r.department : r.type === 'tv' ? 'TV' : 'Film', r.year].filter(Boolean).join(' · '))}${r.rating ? ' · ★ ' + r.rating : ''}</small></div>`
+    }).join('')}</div>`
+}
+
+// ---- production challenge peek ----
+$('#peek').addEventListener('click', async () => {
+  const out = $('#peekOut'); const b = $('#peek')
+  b.disabled = true; out.innerHTML = '<p class="muted" style="font-size:13px">Calling…</p>'
+  try {
+    const res = await fetch('/api/title?q=dune', { headers: { accept: 'application/json' } })
+    const h = res.headers.get('www-authenticate') || ''
+    const offers = h.split(/,\s*(?=Payment\s)/).map((p) => { const m = /request="([^"]+)"/.exec(p); if (!m) return null; try { return JSON.parse(atob(m[1].replace(/-/g, '+').replace(/_/g, '/'))) } catch { return null } }).filter(Boolean)
+    const chain = offers[0]?.methodDetails?.chainId
+    out.innerHTML = `<div style="margin-top:16px"><span class="tag ${res.status === 402 ? 's402' : ''}">HTTP ${res.status} ${esc(res.statusText || 'Payment Required')}</span> <span class="dim" style="font-size:13px">${esc(CHAINS[chain] || '')}</span></div>
+      <div class="offers">${offers.map((o) => { const t = tok(o.currency); return `<div class="offer"><span class="coin" style="background:${t.bg}">${esc(t.sym.slice(0, 4))}</span><div><b>${esc(t.sym)}</b><small>${esc(short(o.currency))}</small></div><span class="price">${usd(o.amount)}</span></div>` }).join('')}</div>
+      ${offers[0] ? `<p style="font-size:13px;margin:14px 0 0" class="muted">Pays to <a class="link mono" target="_blank" rel="noopener" href="${EXPL[chain] || EXPL[4217]}/address/${esc(offers[0].recipient)}">${esc(short(offers[0].recipient))}</a>. Any MPP client can pay either offer.</p>` : ''}`
+  } catch (e) {
+    out.innerHTML = `<p style="color:var(--err)">${esc(e.message)}</p>`
+  } finally { b.disabled = false }
+})
+
+// copy buttons
+document.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', () => {
+  const el = $('#' + b.dataset.copy).cloneNode(true); el.querySelector('.copy').remove(); el.querySelectorAll('.c').forEach((c) => c.remove())
+  navigator.clipboard.writeText(el.textContent.trim()); b.textContent = 'Copied'; setTimeout(() => (b.textContent = 'Copy'), 1200)
+}))
+
+// hero poster strip: today's trending posters (free, cached server-side)
+fetch('/demo/posters').then((r) => r.json()).then((list) => {
+  document.querySelectorAll('#strip span').forEach((s, i) => { if (list[i]) s.style.backgroundImage = `url('${list[i]}')` })
+}).catch(() => {})
+</script>
+</body>
+</html>
