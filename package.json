@@ -1,0 +1,26 @@
+{
+  "name": "screenscout",
+  "version": "1.0.0",
+  "description": "Pay-per-request movie & TV data API: titles, cast, actors and reviews (MPP / Tempo)",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "dev": "tsx watch src/server.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.6",
+    "dotenv": "^18.0.10",
+    "hono": "^4.13.17",
+    "mppx": "^0.18.0",
+    "tsx": "^4.23.15"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  }
+}
