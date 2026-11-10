@@ -9,6 +9,8 @@ import * as tmdb from './tmdb.js'
 
 // pathUSD TIP-20 token (same address on Tempo testnet and mainnet).
 const PATHUSD = '0x20c0000000000000000000000000000000000000'
+// Bridged USDC (USDC.e) on Tempo mainnet — the default balance token in Tempo wallets.
+const USDCE = '0x20c000000000000000000000b9537d11c60e8b50'
 
 const recipient = process.env.MPP_RECIPIENT as `0x${string}` | undefined
 const secretKey = process.env.MPP_SECRET_KEY
@@ -21,8 +23,10 @@ if (!secretKey) throw new Error('MPP_SECRET_KEY is required (openssl rand -hex 3
 
 const mppx = Mppx.create({
   methods: [
-    tempo.charge({
-      currency: PATHUSD,
+    // One charge offer per token; the 402 lists both and the payer picks one.
+    // USDC.e only exists on mainnet, so testnet offers pathUSD alone.
+    ...tempo.charge({
+      currencies: testnet ? [PATHUSD] : [PATHUSD, USDCE],
       decimals: 6,
       recipient,
       testnet,
@@ -87,7 +91,7 @@ app.get('/', (c) =>
     name: 'ScreenScout',
     description: 'Pay-per-request movie & TV data for agents: titles, cast, actors and reviews. No API key — pay with MPP.',
     network: testnet ? 'tempo-testnet' : 'tempo-mainnet',
-    currency: 'pathUSD',
+    currencies: testnet ? ['pathUSD'] : ['pathUSD', 'USDC.e'],
     endpoints: Object.fromEntries(Object.entries(PRICES).map(([k, v]) => [`GET /api/${k}`, `$${v}`])),
     discovery: { openapi: `${publicUrl}/openapi.json`, llms: `${publicUrl}/llms.txt` },
   }),

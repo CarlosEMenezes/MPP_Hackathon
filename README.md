@@ -2,7 +2,7 @@
 
 Agents call ScreenScout for movie/TV **title data, cast, actor profiles and reviews**. No signup, no API key:
 every paid route answers `402 Payment Required` with an MPP challenge (`WWW-Authenticate: Payment ...`),
-the agent pays in pathUSD on Tempo, retries with the credential, and gets JSON + a `Payment-Receipt` header.
+the agent pays on Tempo (mainnet: pathUSD **or** USDC.e, same price; testnet: pathUSD), retries with the credential, and gets JSON + a `Payment-Receipt` header.
 
 | Route | Price | What you get |
 |---|---|---|

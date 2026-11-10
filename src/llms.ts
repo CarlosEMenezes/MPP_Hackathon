@@ -1,4 +1,4 @@
-// Prices in pathUSD (1 pathUSD ≈ 1 USD).
+// Prices in USD stablecoin units (pathUSD or USDC.e, 1 ≈ 1 USD).
 export const PRICES = {
   search: '0.01',
   title: '0.02',
@@ -10,7 +10,7 @@ export const llmsTxt = (base: string, testnet: boolean) => `# ScreenScout
 
 > Pay-per-request movie & TV data for AI agents: title details, cast & crew, actor profiles and audience reviews. No signup and no API key: every paid endpoint answers HTTP 402 with an MPP payment challenge, you pay, retry with the credential, and get JSON plus a Payment-Receipt header.
 
-Payment: Machine Payments Protocol (MPP), Tempo ${testnet ? 'testnet (Moderato, test funds only)' : 'mainnet'}, currency pathUSD.
+Payment: Machine Payments Protocol (MPP), Tempo ${testnet ? 'testnet (Moderato, test funds only), currency pathUSD' : 'mainnet, pay in pathUSD or USDC.e (either one; same price)'}.
 Discovery: ${base}/openapi.json (x-payment-info on each paid operation)
 Data source: TMDB (This product uses the TMDB API but is not endorsed or certified by TMDB.)
 
